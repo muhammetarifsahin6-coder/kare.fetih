@@ -1,0 +1,125 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidProfile(data) {
+      return data.keys().hasAll([
+        'ownerId', 'profileId', 'name', 'color',
+        'totalMatches', 'wins', 'losses', 'draws',
+        'fullConquestWins', 'turnLimitedWins',
+        'totalConqueredTiles', 'eliminationsCaused',
+        'createdAt', 'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'ownerId', 'profileId', 'name', 'color',
+        'totalMatches', 'wins', 'losses', 'draws',
+        'fullConquestWins', 'turnLimitedWins',
+        'totalConqueredTiles', 'eliminationsCaused',
+        'createdAt', 'updatedAt'
+      ]) &&
+      data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128 &&
+      data.ownerId == request.auth.uid &&
+      data.profileId is string && data.profileId.size() >= 1 && data.profileId.size() <= 64 &&
+      data.profileId.matches('^[a-zA-Z0-9_\\-]+$') &&
+      data.name is string && data.name.size() >= 1 && data.name.size() <= 40 &&
+      data.color is string && data.color.size() >= 1 && data.color.size() <= 20 &&
+      data.totalMatches is int && data.totalMatches >= 0 && data.totalMatches <= 1000000 &&
+      data.wins is int && data.wins >= 0 && data.wins <= 1000000 &&
+      data.losses is int && data.losses >= 0 && data.losses <= 1000000 &&
+      data.draws is int && data.draws >= 0 && data.draws <= 1000000 &&
+      data.fullConquestWins is int && data.fullConquestWins >= 0 && data.fullConquestWins <= 1000000 &&
+      data.turnLimitedWins is int && data.turnLimitedWins >= 0 && data.turnLimitedWins <= 1000000 &&
+      data.totalConqueredTiles is int && data.totalConqueredTiles >= 0 && data.totalConqueredTiles <= 100000000 &&
+      data.eliminationsCaused is int && data.eliminationsCaused >= 0 && data.eliminationsCaused <= 1000000 &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    function isValidSavedMatch(data) {
+      return data.keys().hasAll([
+        'ownerId', 'matchId', 'boardSize', 'status',
+        'turnNumber', 'statePayload', 'createdAt', 'updatedAt'
+      ]) &&
+      data.keys().hasOnly([
+        'ownerId', 'matchId', 'boardSize', 'status',
+        'turnNumber', 'statePayload', 'createdAt', 'updatedAt'
+      ]) &&
+      data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128 &&
+      data.ownerId == request.auth.uid &&
+      data.matchId is string && data.matchId.size() >= 1 && data.matchId.size() <= 64 &&
+      data.matchId.matches('^[a-zA-Z0-9_\\-]+$') &&
+      data.boardSize is int && data.boardSize >= 10 && data.boardSize <= 60 &&
+      data.status is string && data.status.size() <= 16 &&
+      (data.status == 'active' || data.status == 'completed') &&
+      data.turnNumber is int && data.turnNumber >= 1 && data.turnNumber <= 10000 &&
+      data.statePayload is string && data.statePayload.size() >= 2 && data.statePayload.size() <= 200000 &&
+      data.createdAt is timestamp &&
+      data.updatedAt is timestamp;
+    }
+
+    match /profiles/{profileId} {
+      allow get: if isSignedIn() && isValidId(profileId) && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(profileId) &&
+        isValidProfile(incoming()) &&
+        incoming().profileId == profileId &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(profileId) &&
+        isValidProfile(incoming()) &&
+        existing().ownerId == request.auth.uid &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().profileId == existing().profileId &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'name', 'color', 'totalMatches', 'wins', 'losses', 'draws',
+          'fullConquestWins', 'turnLimitedWins', 'totalConqueredTiles',
+          'eliminationsCaused', 'updatedAt'
+        ]);
+      allow delete: if isSignedIn() && isValidId(profileId) && existing().ownerId == request.auth.uid;
+    }
+
+    match /savedMatches/{matchId} {
+      allow get: if isSignedIn() && isValidId(matchId) && existing().ownerId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidId(matchId) &&
+        isValidSavedMatch(incoming()) &&
+        incoming().matchId == matchId &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isValidId(matchId) &&
+        isValidSavedMatch(incoming()) &&
+        existing().ownerId == request.auth.uid &&
+        existing().status != 'completed' &&
+        incoming().ownerId == existing().ownerId &&
+        incoming().matchId == existing().matchId &&
+        incoming().boardSize == existing().boardSize &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'status', 'turnNumber', 'statePayload', 'updatedAt'
+        ]);
+      allow delete: if isSignedIn() && isValidId(matchId) && existing().ownerId == request.auth.uid;
+    }
+  }
+}

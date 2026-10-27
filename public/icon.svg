@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c1917" />
+      <stop offset="100%" stop-color="#0c0a09" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fcd34d" />
+      <stop offset="50%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#92400e" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bg)" stroke="url(#gold)" stroke-width="16" />
+  <g transform="translate(86, 86)">
+    <rect x="0" y="0" width="150" height="150" rx="18" fill="#1d4ed8" stroke="#60a5fa" stroke-width="8" />
+    <rect x="190" y="0" width="150" height="150" rx="18" fill="#b45309" stroke="#fbbf24" stroke-width="8" />
+    <rect x="0" y="190" width="150" height="150" rx="18" fill="#047857" stroke="#34d399" stroke-width="8" />
+    <rect x="190" y="190" width="150" height="150" rx="18" fill="#b91c1c" stroke="#f87171" stroke-width="8" />
+    <circle cx="170" cy="170" r="56" fill="#1c1917" stroke="url(#gold)" stroke-width="10" />
+    <path d="M170 132 L182 158 L210 162 L190 182 L195 210 L170 196 L145 210 L150 182 L130 162 L158 158 Z" fill="url(#gold)" />
+  </g>
+</svg>

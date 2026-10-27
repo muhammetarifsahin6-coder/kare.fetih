@@ -1,0 +1,159 @@
+{
+  "entities": {
+    "PlayerProfile": {
+      "title": "PlayerProfile",
+      "description": "Persistent player profile and career statistics for KareFetih.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the profile owner.",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "profileId": {
+          "type": "string",
+          "description": "Stable unique identifier for the player profile.",
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the player.",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "color": {
+          "type": "string",
+          "description": "Preferred player color hex or key.",
+          "maxLength": 20
+        },
+        "totalMatches": {
+          "type": "integer",
+          "description": "Total completed matches."
+        },
+        "wins": {
+          "type": "integer",
+          "description": "Total victories."
+        },
+        "losses": {
+          "type": "integer",
+          "description": "Total defeats."
+        },
+        "draws": {
+          "type": "integer",
+          "description": "Total draws."
+        },
+        "fullConquestWins": {
+          "type": "integer",
+          "description": "Wins in Tam Fetih mode."
+        },
+        "turnLimitedWins": {
+          "type": "integer",
+          "description": "Wins in Tur Sinirli mode."
+        },
+        "totalConqueredTiles": {
+          "type": "integer",
+          "description": "Cumulative tiles conquered across matches."
+        },
+        "eliminationsCaused": {
+          "type": "integer",
+          "description": "Total opponents eliminated."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "ownerId",
+        "profileId",
+        "name",
+        "color",
+        "totalMatches",
+        "wins",
+        "losses",
+        "draws",
+        "fullConquestWins",
+        "turnLimitedWins",
+        "totalConqueredTiles",
+        "eliminationsCaused",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "SavedMatch": {
+      "title": "SavedMatch",
+      "description": "Cloud backup of an active or completed KareFetih match state.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the player who saved the match.",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "matchId": {
+          "type": "string",
+          "description": "Unique identifier of the match.",
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "boardSize": {
+          "type": "integer",
+          "description": "Dimension N of the N x N board (15 to 60)."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "completed"],
+          "maxLength": 16
+        },
+        "turnNumber": {
+          "type": "integer",
+          "description": "Current turn number."
+        },
+        "statePayload": {
+          "type": "string",
+          "description": "Serialized match state snapshot.",
+          "maxLength": 200000
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last saved timestamp."
+        }
+      },
+      "required": [
+        "ownerId",
+        "matchId",
+        "boardSize",
+        "status",
+        "turnNumber",
+        "statePayload",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/profiles/{profileId}": {
+      "schema": { "$ref": "#/entities/PlayerProfile" },
+      "description": "Stores player profiles and career statistics owned by authenticated users."
+    },
+    "/savedMatches/{matchId}": {
+      "schema": { "$ref": "#/entities/SavedMatch" },
+      "description": "Stores saved match snapshots owned by authenticated users."
+    }
+  }
+}

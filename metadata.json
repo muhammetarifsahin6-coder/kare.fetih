@@ -1,0 +1,6 @@
+{
+  "name": "KareFetih — Sıra Tabanlı Strateji Oyunu",
+  "description": "Android telefonlar için zarla fetih hakkı kazanılan, 2-4 oyunculu, yapay zekâ ve yerel çok oyunculu modlara sahip sıra tabanlı kare fetih strateji oyunu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
