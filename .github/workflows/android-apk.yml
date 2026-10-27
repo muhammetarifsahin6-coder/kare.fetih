@@ -38,6 +38,9 @@ jobs:
 
       - name: Bağımlılıkları yükle
         run: npm install --legacy-peer-deps
+        
+      - name: TypeScript sürümünü sabitle
+        run: npm install --no-save --legacy-peer-deps typescript@5.9.3
 
       - name: Web uygulamasını derle
         run: npm run build
